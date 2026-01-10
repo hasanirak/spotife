@@ -26,16 +26,16 @@
             --primary-hover: #1ed760;
             --bg-black: #121212;
             --bg-base: #121212;
-            --bg-highlight: #1a1a1a;
+            --bg-highlight: #2a2a2a;
             --bg-card: #181818;
             --bg-card-hover: #282828;
             --text-base: #ffffff;
-            --text-subdued: #a7a7a7;
+            --text-subdued: #b3b3b3;
             --nav-width: 240px;
             --player-height: 90px;
             --header-height: 64px;
-            --mini-player-height: 60px;
-            --mobile-nav-height: 60px;
+            --mini-player-height: 56px;
+            --mobile-nav-height: 65px;
         }
 
         * {
@@ -167,7 +167,7 @@
             padding: 30px 20px;
             color: var(--text-subdued);
             font-size: 0.85rem;
-            padding-bottom: 150px;
+            padding-bottom: 160px; /* Extra space for Nav + Player + safe area */
         }
 
         /* Main Content Area */
@@ -430,6 +430,34 @@
             margin-bottom: 20px;
         }
         .mobile-search-input { border: none; font-size: 1rem; font-weight: 500; width: 100%; outline: none; }
+        
+        /* Browse Categories Grid */
+        .browse-categories {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            padding-bottom: 100px;
+        }
+        .category-card {
+            height: 100px;
+            border-radius: 4px;
+            padding: 16px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .category-card:active { transform: scale(0.98); }
+        .category-card img {
+            position: absolute;
+            right: -15px;
+            bottom: 0;
+            width: 70px;
+            transform: rotate(25deg);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
 
         /* Offline Toast */
         .offline-toast {
@@ -451,7 +479,7 @@
         /* --- Responsive Design (Mobile Spotify Look) --- */
         @media (max-width: 768px) {
             .sidebar { display: none; }
-            .top-bar { display: none; } /* Hide Desktop Header */
+            .top-bar { display: none; }
             .mobile-dev-info { display: block; }
             .mobile-greeting { display: block; }
             .mobile-install-fab { display: flex; }
@@ -479,6 +507,7 @@
                 align-items: center;
                 z-index: 200;
                 padding-bottom: env(safe-area-inset-bottom);
+                border-top: 1px solid rgba(255,255,255,0.05);
             }
             .nav-item {
                 display: flex; flex-direction: column; align-items: center;
@@ -519,6 +548,7 @@
                 align-items: center;
             }
             .control-buttons { margin-bottom: 0; gap: 16px; margin-left: 8px; }
+            
             /* Hide non-essential buttons on mini player */
             .c-btn { display: none; } 
             .c-btn.main-play { 
@@ -695,12 +725,21 @@
                     <i class="fas fa-search search-btn-icon" onclick="performSearch(document.getElementById('mobile-search-input').value)"></i>
                     <input type="text" id="mobile-search-input" class="mobile-search-input" placeholder="ماذا تريد أن تسمع؟">
                 </div>
+                
+                <!-- Search Results Container (Initially Hidden) -->
+                <div id="search-results-container" style="display:none; margin-bottom: 20px;">
+                    <div style="font-weight:700; margin-bottom:10px;">النتائج</div>
+                    <div class="cards-grid" id="search-results-grid" style="grid-template-columns: repeat(2,1fr);"></div>
+                </div>
+
                 <div style="font-weight:700; margin-bottom:10px;">تصفح الكل</div>
-                <div class="cards-grid" style="grid-template-columns: repeat(2,1fr);">
-                    <div onclick="performSearch('عراقي')" style="background:#27856A; height:100px; border-radius:4px; padding:10px; font-weight:700; position:relative; overflow:hidden; cursor:pointer;">عراقي<img src="https://i.scdn.co/image/ab67706f000000025f828753235d94924c581a06" style="position:absolute; right:-10px; bottom:0; width:60px; transform:rotate(25deg);"></div>
-                    <div onclick="performSearch('بوب عربي')" style="background:#E91E63; height:100px; border-radius:4px; padding:10px; font-weight:700; position:relative; overflow:hidden; cursor:pointer;">بوب<img src="https://t.scdn.co/images/0a74d96e091a495bb09c0d83210910c3" style="position:absolute; right:-10px; bottom:0; width:60px; transform:rotate(25deg);"></div>
-                    <div onclick="performSearch('موال')" style="background:#1E3264; height:100px; border-radius:4px; padding:10px; font-weight:700; position:relative; overflow:hidden; cursor:pointer;">موال<img src="https://i.scdn.co/image/ab67706f00000002b88126c06a86e885d95e0926" style="position:absolute; right:-10px; bottom:0; width:60px; transform:rotate(25deg);"></div>
-                    <div onclick="performSearch('رومانسي')" style="background:#8D67AB; height:100px; border-radius:4px; padding:10px; font-weight:700; position:relative; overflow:hidden; cursor:pointer;">رومانسي<img src="https://i.scdn.co/image/ab67706f0000000213d2f9d8540c11438914b150" style="position:absolute; right:-10px; bottom:0; width:60px; transform:rotate(25deg);"></div>
+                <div class="browse-categories">
+                    <div class="category-card" onclick="performSearch('عراقي')" style="background-color:#27856A;">عراقي<img src="https://i.scdn.co/image/ab67706f000000025f828753235d94924c581a06"></div>
+                    <div class="category-card" onclick="performSearch('Top Arabic')" style="background-color:#E91E63;">توب عربي<img src="https://t.scdn.co/images/0a74d96e091a495bb09c0d83210910c3"></div>
+                    <div class="category-card" onclick="performSearch('خليجي')" style="background-color:#1E3264;">خليجي<img src="https://i.scdn.co/image/ab67706f00000002b88126c06a86e885d95e0926"></div>
+                    <div class="category-card" onclick="performSearch('شعبي')" style="background-color:#8D67AB;">شعبي<img src="https://i.scdn.co/image/ab67706f0000000213d2f9d8540c11438914b150"></div>
+                    <div class="category-card" onclick="performSearch('مهرجانات')" style="background-color:#E8115B;">مهرجانات<img src="https://i.scdn.co/image/ab67706f000000025f828753235d94924c581a06"></div>
+                    <div class="category-card" onclick="performSearch('هيب هوب')" style="background-color:#148A08;">هيب هوب<img src="https://i.scdn.co/image/ab67706f000000029bb6af539d072de34548d15c"></div>
                 </div>
             </div>
 
@@ -737,10 +776,11 @@
                     <!-- 1. Top Grid (Good Morning Style) -->
                     <div class="mobile-top-grid" id="mobile-top-grid-container">
                         <!-- JS Will Inject 6 Items Here -->
+                        <div style="grid-column:1/-1; text-align:center; padding:20px;"><i class="fas fa-circle-notch fa-spin"></i> جاري التحميل...</div>
                     </div>
 
                     <!-- 2. Horizontal Section: Jump Back In -->
-                    <div class="horizontal-section-title">مؤخراً</div>
+                    <div class="horizontal-section-title">تم تشغيلها مؤخراً</div>
                     <div class="horizontal-scroll" id="mobile-horizontal-1">
                         <!-- JS Will Inject Items Here -->
                     </div>
@@ -835,11 +875,12 @@
         // Tab elements
         const homeView = document.getElementById('home-view');
         const searchView = document.getElementById('mobile-search-view');
-        const heroSection = document.querySelector('.hero');
         
         // Search inputs
         const desktopSearch = document.getElementById('desktop-search-input');
         const mobileSearch = document.getElementById('mobile-search-input');
+        const searchResultsContainer = document.getElementById('search-results-container');
+        const searchResultsGrid = document.getElementById('search-results-grid');
         
         // PWA Install
         let deferredPrompt;
@@ -848,7 +889,7 @@
         const isMobile = window.innerWidth <= 768;
 
         // --- Current Song & Library Logic ---
-        let currentTrackData = null; // To store current playing song info
+        let currentTrackData = null; 
         let library = JSON.parse(localStorage.getItem('my_library') || '[]');
 
         // --- Greeting Logic ---
@@ -878,12 +919,61 @@
             }
         }
 
-        // --- Search Logic with Fallback ---
+        // --- Search Logic with Results in View ---
         function performSearch(term) {
             if(term.trim() === '') return;
-            loadCategory(term, 'نتائج البحث عن: ' + term);
+            
             if(isMobile) {
-                switchTab('home');
+                // Ensure we are in search tab
+                switchTab('search');
+                // Fetch and display in search view
+                fetchSearchResults(term);
+                mobileSearch.value = term;
+            } else {
+                loadCategory(term, 'نتائج البحث عن: ' + term);
+            }
+        }
+
+        async function fetchSearchResults(term) {
+            searchResultsContainer.style.display = 'block';
+            searchResultsGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px;"><i class="fas fa-circle-notch fa-spin"></i></div>';
+            
+            const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&media=music&entity=song&limit=20&country=IQ`;
+            
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                searchResultsGrid.innerHTML = '';
+                if(data.resultCount === 0) {
+                    searchResultsGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888;">لا توجد نتائج</div>';
+                    return;
+                }
+
+                data.results.forEach(track => {
+                    if(!track.previewUrl) return;
+                    const img = track.artworkUrl100.replace('100x100', '300x300');
+                    const trackData = { 
+                        title: track.trackName, 
+                        artist: track.artistName, 
+                        img: img, 
+                        url: track.previewUrl 
+                    };
+                    
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="card-img-wrapper">
+                            <img src="${img}" class="card-img" style="opacity:1;">
+                        </div>
+                        <div class="card-title">${track.trackName}</div>
+                        <div class="card-desc">${track.artistName}</div>
+                    `;
+                    card.onclick = () => playTrack(trackData);
+                    searchResultsGrid.appendChild(card);
+                });
+            } catch (e) {
+                searchResultsGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888;">خطأ في الاتصال</div>';
             }
         }
 
@@ -917,7 +1007,6 @@
         if(isMobile) setTimeout(() => { mobileInstallBtn.style.display = 'flex'; }, 2000);
 
         // --- Network Logic & Caching ---
-        
         function showOfflineToast() {
             const toast = document.getElementById('offline-toast');
             toast.classList.add('visible');
@@ -925,11 +1014,6 @@
         }
 
         async function fetchTracks(term) {
-            // Show loading indicators
-            if(!isMobile) {
-                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px;"><i class="fas fa-circle-notch fa-spin fa-2x" style="color:#1db954;"></i></div>';
-            }
-            
             // Check Offline first
             if (!navigator.onLine) {
                 showOfflineToast();
@@ -937,7 +1021,8 @@
                 return;
             }
 
-            const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&media=music&entity=song&limit=80&country=IQ`;
+            // Using iTunes API with Proxy fallback
+            const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&media=music&entity=song&limit=100&country=IQ`;
 
             try {
                 const res = await fetch(url);
@@ -945,7 +1030,7 @@
                 const data = await res.json();
                 
                 if(data.resultCount === 0) {
-                    container.innerHTML = '<div style="padding:50px; text-align:center; color:#777">لا توجد نتائج</div>';
+                    if(!isMobile) container.innerHTML = '<div style="padding:50px; text-align:center; color:#777">لا توجد نتائج</div>';
                     return;
                 }
                 
@@ -973,15 +1058,15 @@
         function loadFromCache(term) {
             const cached = localStorage.getItem('cache_' + term);
             if (cached) {
-                console.log('Loaded from cache');
                 renderData(JSON.parse(cached));
-            } else {
-                container.innerHTML = '<div style="padding:50px; text-align:center; color:#777">خطأ في الاتصال ولا توجد بيانات محفوظة.</div>';
             }
         }
 
         // Unified Render Function
         function renderData(tracks) {
+            // Clean invalid tracks
+            const validTracks = tracks.filter(t => t.previewUrl);
+            
             // Desktop Render (Grid)
             container.innerHTML = '';
             const frag = document.createDocumentFragment();
@@ -991,13 +1076,13 @@
             const mobileH1 = document.getElementById('mobile-horizontal-1');
             const mobileH2 = document.getElementById('mobile-horizontal-2');
             
-            mobileTopGrid.innerHTML = '';
-            mobileH1.innerHTML = '';
-            mobileH2.innerHTML = '';
+            if(isMobile) {
+                mobileTopGrid.innerHTML = '';
+                mobileH1.innerHTML = '';
+                mobileH2.innerHTML = '';
+            }
 
-            tracks.forEach((track, index) => {
-                if(!track.previewUrl) return;
-
+            validTracks.forEach((track, index) => {
                 const img = track.artworkUrl100 ? track.artworkUrl100.replace('100x100', '300x300') : 'https://via.placeholder.com/300';
                 const safeTitle = (track.trackName || 'Unknown').replace(/'/g, "&apos;").replace(/"/g, "&quot;");
                 const safeArtist = (track.artistName || 'Unknown').replace(/'/g, "&apos;").replace(/"/g, "&quot;");
@@ -1020,7 +1105,7 @@
 
                 // 2. Mobile Logic
                 if (isMobile) {
-                    // First 6 go to Top Grid
+                    // First 6 go to Top Grid (Good Morning)
                     if (index < 6) {
                         const topCard = document.createElement('div');
                         topCard.className = 'top-card';
@@ -1031,13 +1116,13 @@
                         topCard.onclick = () => playTrack(trackData);
                         mobileTopGrid.appendChild(topCard);
                     } 
-                    // Next 10 go to Horizontal 1
-                    else if (index < 16) {
+                    // Next 12 go to Horizontal 1
+                    else if (index < 18) {
                         const hCard = createHorizontalCard(trackData);
                         mobileH1.appendChild(hCard);
                     }
-                    // Next 10 go to Horizontal 2
-                    else if (index < 26) {
+                    // Next 12 go to Horizontal 2
+                    else if (index < 30) {
                         const hCard = createHorizontalCard(trackData);
                         mobileH2.appendChild(hCard);
                     }
@@ -1058,23 +1143,18 @@
             return div;
         }
 
-        // --- Audio & Library Logic ---
-        let isPlaying = false;
-
+        // --- Audio Logic ---
         function playTrack(trackData) {
             if(!trackData.url) return alert('المعاينة غير متاحة');
-            
-            currentTrackData = trackData; // Save current song info
-            
-            // Check library status
+            currentTrackData = trackData;
             updateLikeButtonState();
             
-            // Reset download button
+            // Reset download icon
             const dlBtn = document.getElementById('download-btn');
-            dlBtn.className = 'fas fa-arrow-circle-down dl-icon';
+            if(dlBtn) dlBtn.className = 'fas fa-arrow-circle-down dl-icon';
 
             audio.src = trackData.url;
-            audio.play().then(() => { isPlaying = true; updatePlayBtn(); }).catch(e => console.log(e));
+            audio.play().then(() => { updatePlayBtn(true); }).catch(e => console.log(e));
             
             document.getElementById('np-title').innerText = trackData.title;
             document.getElementById('np-artist').innerText = trackData.artist;
@@ -1091,49 +1171,39 @@
 
         function togglePlay() {
             if(audio.paused) {
-                audio.play().then(() => { isPlaying = true; updatePlayBtn(); });
+                audio.play().then(() => updatePlayBtn(true));
             } else {
-                audio.pause(); isPlaying = false; updatePlayBtn();
+                audio.pause(); updatePlayBtn(false);
             }
         }
 
-        function updatePlayBtn() {
-            const icon = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play" style="margin-right:-2px;"></i>';
+        function updatePlayBtn(playing) {
+            const icon = playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play" style="margin-right:-2px;"></i>';
             playBtn.innerHTML = icon;
         }
 
         // --- Download Logic ---
         async function downloadCurrentTrack() {
             if (!currentTrackData) return alert("قم بتشغيل أغنية أولاً");
-            
             const btn = document.getElementById('download-btn');
             btn.classList.add('downloading');
-            
             try {
-                // Fetch blob
                 const response = await fetch(currentTrackData.url);
                 if (!response.ok) throw new Error('Network error');
                 const blob = await response.blob();
-                
-                // Create object URL
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.style.display = 'none';
                 a.href = url;
-                a.download = `${currentTrackData.title} - ${currentTrackData.artist}.m4a`;
+                a.download = `${currentTrackData.title}.m4a`;
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
-                
                 btn.classList.remove('downloading');
                 btn.classList.add('done');
                 setTimeout(() => btn.classList.remove('done'), 2000);
             } catch (e) {
-                console.error(e);
-                alert("فشل التحميل. قد يكون بسبب قيود المتصفح.");
                 btn.classList.remove('downloading');
-                
-                // Fallback to direct link if fetch fails
                 window.open(currentTrackData.url, '_blank');
             }
         }
@@ -1147,124 +1217,79 @@
             document.getElementById('curr-time').innerText = `${curM}:${curS<10?'0':''}${curS}`;
         });
         
-        audio.addEventListener('ended', () => { isPlaying = false; updatePlayBtn(); });
+        audio.addEventListener('ended', () => updatePlayBtn(false));
 
-        // --- Categories ---
+        // --- Categories & Init ---
         function loadCategory(term, title) {
             if(title) {
                 document.getElementById('grid-title').innerText = title;
                 document.getElementById('hero-title').innerText = title;
-            } else {
-                document.getElementById('grid-title').innerText = term;
-                document.getElementById('hero-title').innerText = term;
             }
             fetchTracks(term);
         }
 
-        // --- Library System ---
+        // --- Library Logic ---
         function toggleLike() {
             if (!currentTrackData) return;
-
             const index = library.findIndex(t => t.url === currentTrackData.url);
-            
-            if (index > -1) {
-                // Remove
-                library.splice(index, 1);
-            } else {
-                // Add
-                library.push(currentTrackData);
-            }
-            
+            if (index > -1) library.splice(index, 1);
+            else library.push(currentTrackData);
             localStorage.setItem('my_library', JSON.stringify(library));
             updateLikeButtonState();
-            
-            // If we are currently viewing the library, reload it
-            if(document.getElementById('grid-title').innerText === 'مكتبتي') {
-                loadLibrary();
-            }
+            if(document.getElementById('grid-title').innerText === 'مكتبتي') loadLibrary();
         }
 
         function updateLikeButtonState() {
             if (!currentTrackData) return;
             const isLiked = library.some(t => t.url === currentTrackData.url);
-            const btns = document.querySelectorAll('.like-icon');
-            
-            btns.forEach(btn => {
-                if (isLiked) {
-                    btn.classList.add('active');
-                    btn.className = 'fas fa-heart like-icon active';
-                } else {
-                    btn.classList.remove('active');
-                    btn.className = 'far fa-heart like-icon';
-                }
+            document.querySelectorAll('.like-icon').forEach(btn => {
+                btn.className = isLiked ? 'fas fa-heart like-icon active' : 'far fa-heart like-icon';
+                if(isMobile) btn.classList.add('c-btn', 'like-mobile');
             });
         }
 
         function loadLibrary() {
             document.getElementById('grid-title').innerText = 'مكتبتي';
-            document.getElementById('hero-title').innerText = 'مكتبتي';
-            
             if (isMobile) {
                 homeView.style.display = 'block';
                 searchView.classList.remove('active');
-                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-                document.getElementById('nav-lib').classList.add('active');
-                
-                // Hide home sections, show grid only for library
                 document.querySelector('.mobile-only').innerHTML = '<div class="cards-grid" id="mobile-lib-grid" style="grid-template-columns: repeat(2, 1fr); padding: 0 16px;"></div>';
             }
-
+            
             if (library.length === 0) {
-                const msg = '<div style="padding:50px; text-align:center; color:#777">لم تقم بحفظ أي أغانٍ بعد.<br>اضغط على القلب لحفظ الأغاني.</div>';
+                const msg = '<div style="padding:50px; text-align:center; color:#777">لم تقم بحفظ أي أغانٍ بعد.</div>';
                 container.innerHTML = msg;
                 if(isMobile) document.getElementById('mobile-lib-grid').innerHTML = msg;
                 return;
             }
 
-            // Render library items
             container.innerHTML = '';
             const frag = document.createDocumentFragment();
-            const mobileFrag = document.createDocumentFragment();
+            const mFrag = document.createDocumentFragment();
             
             library.forEach(track => {
                 // Desktop
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.innerHTML = `
-                    <div class="card-img-wrapper">
-                        <img src="${track.img}" class="card-img" loading="lazy" onload="this.classList.add('loaded')">
-                        <div class="play-btn-overlay"><i class="fas fa-play"></i></div>
-                    </div>
-                    <div class="card-title">${track.title}</div>
-                    <div class="card-desc">${track.artist}</div>
-                `;
+                card.innerHTML = `<div class="card-img-wrapper"><img src="${track.img}" class="card-img" style="opacity:1"><div class="play-btn-overlay"><i class="fas fa-play"></i></div></div><div class="card-title">${track.title}</div><div class="card-desc">${track.artist}</div>`;
                 card.onclick = () => playTrack(track);
                 frag.appendChild(card);
-
-                // Mobile Library Grid (Reuse basic card style)
+                
+                // Mobile
                 if(isMobile) {
                     const mCard = document.createElement('div');
-                    mCard.className = 'card'; // Use existing card class which is styled for grid
-                    mCard.innerHTML = `
-                        <div class="card-img-wrapper">
-                            <img src="${track.img}" class="card-img" style="opacity:1;">
-                        </div>
-                        <div class="card-title">${track.title}</div>
-                        <div class="card-desc">${track.artist}</div>
-                    `;
+                    mCard.className = 'card';
+                    mCard.innerHTML = `<div class="card-img-wrapper"><img src="${track.img}" class="card-img" style="opacity:1"></div><div class="card-title">${track.title}</div><div class="card-desc">${track.artist}</div>`;
                     mCard.onclick = () => playTrack(track);
-                    mobileFrag.appendChild(mCard);
+                    mFrag.appendChild(mCard);
                 }
             });
             container.appendChild(frag);
-            if(isMobile) document.getElementById('mobile-lib-grid').appendChild(mobileFrag);
+            if(isMobile) document.getElementById('mobile-lib-grid').appendChild(mFrag);
         }
 
-        // Init
         window.addEventListener('DOMContentLoaded', () => {
             loadCategory('Iraq Top Hits', 'أفضل الأغاني العراقية');
-            
-            // Check connection status listener
             window.addEventListener('online', () => document.getElementById('offline-toast').classList.remove('visible'));
             window.addEventListener('offline', showOfflineToast);
         });
