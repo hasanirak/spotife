@@ -825,16 +825,26 @@
             
             currentTrackUrl = url;
             audio.src = url;
-            audio.play();
             
+            // Try playing and catch errors
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    isPlaying = true;
+                    updatePlayBtn();
+                }).catch(error => {
+                    // Auto-play was prevented or interrupted
+                    console.warn("Playback interrupted or prevented:", error);
+                    isPlaying = false;
+                    updatePlayBtn();
+                });
+            }
+
             // Update UI
             npTitle.innerText = title;
             npArtist.innerText = artist;
             npImg.src = img;
             
-            isPlaying = true;
-            updatePlayBtn();
-
             // Setup Media Session
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
@@ -851,13 +861,22 @@
             if(!currentTrackUrl) return;
             
             if(audio.paused) {
-                audio.play();
-                isPlaying = true;
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        isPlaying = true;
+                        updatePlayBtn();
+                    }).catch(error => {
+                        console.warn("Playback interrupted:", error);
+                        isPlaying = false;
+                        updatePlayBtn();
+                    });
+                }
             } else {
                 audio.pause();
                 isPlaying = false;
+                updatePlayBtn();
             }
-            updatePlayBtn();
         }
 
         function updatePlayBtn() {
