@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="عراق ميوزك">
     
-    <!-- Manifest (Spotify Icon) -->
+    <!-- Manifest -->
     <link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"%D8%B9%D8%B1%D8%A7%D9%82%20%D9%85%D9%8A%D9%88%D8%B2%D9%83","short_name":"Iraq%20Music","start_url":".","display":"standalone","background_color":"#121212","theme_color":"#1db954","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/2111/2111624.png","sizes":"512x512","type":"image/png"}]}'>
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2111/2111624.png">
 
@@ -110,10 +110,37 @@
         }
         .nav-link.active { background-color: #282828; }
 
-        /* Install Button specific style */
+        /* Install Button specific style (Desktop Sidebar) */
         .install-link {
-            display: none; /* Hidden by default, shown via JS */
+            display: none; 
             color: var(--primary) !important;
+            font-weight: bold;
+        }
+
+        /* Install Button Floating (Mobile) */
+        .mobile-install-fab {
+            display: none; /* Shown via JS on mobile */
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: var(--primary);
+            color: black;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            border: none;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         .sidebar-divider {
@@ -144,6 +171,7 @@
             padding: 30px 20px;
             color: var(--text-subdued);
             font-size: 0.85rem;
+            padding-bottom: 80px; /* Space for Nav */
         }
 
         /* Main Content Area */
@@ -153,9 +181,11 @@
             overflow-y: auto;
             position: relative;
             padding-bottom: 20px;
-            border-radius: 8px 8px 0 0; /* Modern Spotify Look */
+            border-radius: 8px 8px 0 0;
             margin-top: 8px;
-            margin-left: 8px; /* For RTL, this might need adjustment if using margin-left on English */
+            margin-left: 8px;
+            /* Performance: Create a new layer */
+            will-change: transform;
         }
 
         /* Header */
@@ -219,15 +249,16 @@
         }
         .hero-img {
             width: 180px; height: 180px;
-            box-shadow: 0 4px 60px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.5); /* Reduced shadow spread for performance */
             object-fit: cover;
-            border-radius: 4px; /* Spotify doesn't use rounded corners heavily on album art in hero */
+            border-radius: 8px;
         }
         .hero-info h1 {
-            font-size: 4rem;
+            font-size: 3.5rem;
             font-weight: 900;
             margin: 8px 0;
             letter-spacing: -1px;
+            line-height: 1.1;
         }
         .hero-info p { color: rgba(255,255,255,0.8); font-size: 0.9rem; font-weight: 500; }
         
@@ -263,12 +294,11 @@
             margin-bottom: 20px;
             cursor: pointer;
         }
-        .section-title:hover { text-decoration: underline; }
 
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
         }
 
         .card {
@@ -281,28 +311,33 @@
             display: flex;
             flex-direction: column;
         }
-        .card:hover { background-color: var(--bg-card-hover); }
+        /* Removed hover background on touch devices to prevent sticky hover state */
+        @media (hover: hover) {
+            .card:hover { background-color: var(--bg-card-hover); }
+        }
         
         .card-img-wrapper {
             position: relative;
             width: 100%;
             padding-bottom: 100%;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             border-radius: 4px;
             overflow: hidden;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            background: #333; /* Placeholder color */
         }
         .card-img {
             position: absolute; top: 0; left: 0;
             width: 100%; height: 100%; object-fit: cover;
+            opacity: 0; transition: opacity 0.5s ease; /* Fade in effect */
         }
+        .card-img.loaded { opacity: 1; }
         
         /* Green Play Button on Card */
         .play-btn-overlay {
             position: absolute;
             bottom: 8px;
             right: 8px;
-            width: 48px; height: 48px;
+            width: 44px; height: 44px;
             background-color: var(--primary);
             border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
@@ -314,8 +349,10 @@
             font-size: 1.2rem;
             z-index: 2;
         }
-        .card:hover .play-btn-overlay { opacity: 1; transform: translateY(0); }
-        .play-btn-overlay:hover { background-color: var(--primary-hover); transform: scale(1.05) translateY(0); }
+        @media (hover: hover) {
+            .card:hover .play-btn-overlay { opacity: 1; transform: translateY(0); }
+            .play-btn-overlay:hover { background-color: var(--primary-hover); transform: scale(1.05) translateY(0); }
+        }
 
         .card-title {
             font-weight: 700;
@@ -324,9 +361,10 @@
             overflow: hidden;
             text-overflow: ellipsis;
             margin-bottom: 4px;
+            font-size: 0.95rem;
         }
         .card-desc {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-subdued);
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -354,14 +392,11 @@
             width: 30%;
             min-width: 180px;
         }
-        .np-img { width: 56px; height: 56px; border-radius: 4px; margin-left: 14px; object-fit: cover; }
+        .np-img { width: 56px; height: 56px; border-radius: 4px; margin-left: 14px; object-fit: cover; background: #333; }
         .np-info { display: flex; flex-direction: column; justify-content: center; margin-left: 14px; overflow: hidden; }
         .np-title { color: white; font-size: 0.9rem; font-weight: 600; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-        .np-title:hover { text-decoration: underline; }
         .np-artist { color: var(--text-subdued); font-size: 0.75rem; cursor: pointer; }
-        .np-artist:hover { text-decoration: underline; color: white; }
         .like-icon { color: var(--text-subdued); margin-right: 16px; cursor: pointer; }
-        .like-icon:hover { color: white; }
         .like-icon.active { color: var(--primary); }
 
         /* Player Controls (Center) */
@@ -419,7 +454,6 @@
             width: 0%;
             border-radius: 2px;
         }
-        .progress-container:hover .progress-fill { background-color: var(--primary); }
 
         /* Volume Controls (Right) */
         .volume-controls {
@@ -441,19 +475,27 @@
             .content-area { 
                 margin: 0; 
                 border-radius: 0;
-                padding-bottom: 140px; /* Space for player + nav */
+                padding-bottom: 140px; 
             }
             
-            .hero { height: auto; padding: 20px; flex-direction: column; align-items: center; text-align: center; background: linear-gradient(135deg, #4b1010, #121212); }
-            .hero-img { width: 140px; height: 140px; }
-            .hero-info h1 { font-size: 2.5rem; }
+            /* Enhanced Hero for Mobile */
+            .hero { 
+                height: auto; 
+                padding: 40px 20px 20px 20px; 
+                flex-direction: column; 
+                align-items: center; 
+                text-align: center; 
+                background: linear-gradient(135deg, #1f1f1f, #121212); /* Simpler gradient for performance */
+            }
+            .hero-img { width: 150px; height: 150px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+            .hero-info h1 { font-size: 2.2rem; }
             
-            .top-bar { display: none; } /* Simplify header on mobile */
+            .top-bar { display: none; } 
 
-            .mobile-dev-info { display: block; } /* Show dev info on mobile footer */
+            .mobile-dev-info { display: block; }
 
             .player-bar {
-                bottom: 55px; /* Above nav */
+                bottom: 55px; 
                 background: #181818;
                 border-radius: 6px;
                 margin: 0 8px;
@@ -461,6 +503,7 @@
                 height: 60px;
                 position: fixed;
                 border: none;
+                box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
             }
             .np-img { width: 40px; height: 40px; border-radius: 4px; }
             .volume-controls { display: none; }
@@ -472,19 +515,19 @@
             
             .control-buttons { margin: 0; gap: 15px; }
             .c-btn.hide-mobile { display: none; }
-            .c-btn.main-play { width: 28px; height: 28px; font-size: 0.8rem; }
+            .c-btn.main-play { width: 30px; height: 30px; font-size: 0.9rem; }
 
+            /* Performance: Remove blur on mobile nav */
             .bottom-nav {
                 display: flex;
                 position: fixed;
                 bottom: 0; left: 0; right: 0;
                 height: 55px;
-                background: linear-gradient(0deg, rgba(18,18,18,1) 0%, rgba(18,18,18,0.8) 100%);
-                backdrop-filter: blur(10px);
+                background: #121212; /* Solid color is faster than blur */
+                border-top: 1px solid #282828;
                 justify-content: space-around;
                 align-items: center;
                 z-index: 190;
-                border-top: 1px solid #282828;
             }
             .nav-item {
                 display: flex; flex-direction: column; align-items: center;
@@ -494,10 +537,18 @@
             }
             .nav-item span { font-size: 0.6rem; font-weight: 500; }
             .nav-item.active { color: white; }
+            
+            /* Show Floating Install Button on Mobile */
+            .mobile-install-fab { display: flex; }
         }
     </style>
 </head>
 <body>
+
+    <!-- Mobile Floating Install Button -->
+    <button id="mobile-install-btn" class="mobile-install-fab">
+        <i class="fas fa-download"></i> تثبيت التطبيق
+    </button>
 
     <div class="main-container">
         <!-- Sidebar -->
@@ -516,8 +567,8 @@
                 <li class="nav-link" onclick="loadLibrary()">
                     <i class="fas fa-book"></i> مكتبتي
                 </li>
-                <!-- Install App Button (Visible only when PWA is ready) -->
-                <li id="install-btn" class="nav-link install-link">
+                <!-- Install App Button (Desktop Sidebar) -->
+                <li id="desktop-install-btn" class="nav-link install-link">
                     <i class="fas fa-arrow-circle-down"></i> تثبيت التطبيق
                 </li>
             </ul>
@@ -554,7 +605,8 @@
 
             <!-- Hero Section -->
             <div class="hero">
-                <img src="https://i.scdn.co/image/ab67616d0000b273570624d788325a5857c164d1" class="hero-img" id="hero-img" alt="Hero">
+                <!-- Using a reliable high-quality Unsplash image for Music/Concert -->
+                <img src="https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=800&auto=format&fit=crop" class="hero-img" id="hero-img" alt="Hero" crossorigin="anonymous">
                 <div class="hero-info">
                     <p>قائمة تشغيل</p>
                     <h1 id="hero-title">أفضل أغاني العراق</h1>
@@ -660,32 +712,48 @@
         
         // PWA Install Logic
         let deferredPrompt;
-        const installBtn = document.getElementById('install-btn');
+        const desktopInstallBtn = document.getElementById('desktop-install-btn');
+        const mobileInstallBtn = document.getElementById('mobile-install-btn');
+
+        // Initial check for mobile
+        const isMobile = window.innerWidth <= 768;
 
         window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
             e.preventDefault();
-            // Stash the event so it can be triggered later.
             deferredPrompt = e;
-            // Update UI to notify the user they can add to home screen
-            installBtn.style.display = 'flex';
+            // Show buttons based on device
+            desktopInstallBtn.style.display = 'flex';
+            if(isMobile) mobileInstallBtn.style.display = 'flex';
         });
 
-        installBtn.addEventListener('click', (e) => {
-            // Hide the app provided install promotion
-            installBtn.style.display = 'none';
-            // Show the install prompt
-            deferredPrompt.prompt();
-            // Wait for the user to respond to the prompt
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('User accepted the A2HS prompt');
-                } else {
-                    console.log('User dismissed the A2HS prompt');
+        // Handler function
+        function handleInstall() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        desktopInstallBtn.style.display = 'none';
+                        mobileInstallBtn.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                // If not supported/already installed/iOS
+                alert("لتثبيت التطبيق: اضغط على زر المشاركة (Share) في متصفحك، ثم اختر 'إضافة إلى الصفحة الرئيسية' (Add to Home Screen).");
+            }
+        }
+
+        desktopInstallBtn.addEventListener('click', handleInstall);
+        mobileInstallBtn.addEventListener('click', handleInstall);
+        
+        // Show mobile button anyway to allow manual instruction
+        if(isMobile) {
+            setTimeout(() => {
+                if(mobileInstallBtn.style.display !== 'flex') {
+                    mobileInstallBtn.style.display = 'flex';
                 }
-                deferredPrompt = null;
-            });
-        });
+            }, 3000);
+        }
 
         // UI Elements
         const npTitle = document.getElementById('np-title');
@@ -699,13 +767,13 @@
 
         // --- Functions ---
 
-        // 1. Fetch Music from iTunes API
+        // 1. Fetch Music (Optimized limit)
         async function fetchTracks(term) {
             container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px;"><i class="fas fa-circle-notch fa-spin fa-2x" style="color:var(--primary);"></i></div>';
             
             try {
-                // Using iTunes Search API (returns 30s previews)
-                const response = await fetch(`https://itunes.apple.com/search?term=${term}&media=music&entity=song&limit=40&country=IQ`);
+                // Reduced limit to 25 for better performance on mobile
+                const response = await fetch(`https://itunes.apple.com/search?term=${term}&media=music&entity=song&limit=25&country=IQ`);
                 const data = await response.json();
                 
                 if(data.resultCount === 0) {
@@ -720,13 +788,14 @@
             }
         }
 
-        // 2. Render Cards
+        // 2. Render Cards (Optimized Image Loading)
         function renderCards(tracks) {
             container.innerHTML = '';
+            const fragment = document.createDocumentFragment();
+
             tracks.forEach(track => {
                 // Get high-res image
-                const imgUrl = track.artworkUrl100.replace('100x100', '400x400');
-                // Escape strings for onclick
+                const imgUrl = track.artworkUrl100.replace('100x100', '300x300'); // slightly smaller than 400 for speed
                 const safeTitle = track.trackName.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
                 const safeArtist = track.artistName.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
                 const safePreview = track.previewUrl;
@@ -735,7 +804,7 @@
                 card.className = 'card';
                 card.innerHTML = `
                     <div class="card-img-wrapper">
-                        <img src="${imgUrl}" class="card-img" alt="${safeTitle}" loading="lazy">
+                        <img src="${imgUrl}" class="card-img" alt="${safeTitle}" loading="lazy" onload="this.classList.add('loaded')">
                         <div class="play-btn-overlay">
                             <i class="fas fa-play" style="margin-right:-2px;"></i>
                         </div>
@@ -745,8 +814,9 @@
                 `;
                 
                 card.onclick = () => playTrack(safePreview, safeTitle, safeArtist, imgUrl);
-                container.appendChild(card);
+                fragment.appendChild(card);
             });
+            container.appendChild(fragment);
         }
 
         // 3. Play Logic
@@ -765,7 +835,7 @@
             isPlaying = true;
             updatePlayBtn();
 
-            // Setup Media Session (Lock Screen Controls)
+            // Setup Media Session
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: title,
@@ -798,12 +868,11 @@
             }
         }
 
-        // 4. Progress Bar Logic
+        // 4. Progress Bar
         audio.addEventListener('timeupdate', () => {
             const percent = (audio.currentTime / audio.duration) * 100;
             progressFill.style.width = percent + '%';
             
-            // Update Time Text
             const curMins = Math.floor(audio.currentTime / 60);
             const curSecs = Math.floor(audio.currentTime % 60);
             document.getElementById('curr-time').innerText = `${curMins}:${curSecs < 10 ? '0' : ''}${curSecs}`;
@@ -821,12 +890,11 @@
             updatePlayBtn();
         });
 
-        // 5. Navigation & Search Logic
+        // 5. Navigation & Search
         function loadCategory(term, title) {
             document.getElementById('grid-title').innerText = title || term;
             document.getElementById('hero-title').innerText = title || term;
             
-            // Reset Active States
             document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tag-pill').forEach(el => el.classList.remove('active'));
             
@@ -836,7 +904,6 @@
         function focusSearch() {
             searchInput.focus();
             if(window.innerWidth <= 768) {
-                // Scroll to top on mobile to see search bar
                 mainScroll.scrollTop = 0;
             }
         }
@@ -847,16 +914,23 @@
             }
         });
 
-        // 6. Header Transparency on Scroll
+        // 6. Scroll Effect (Optimized)
+        let ticking = false;
         mainScroll.addEventListener('scroll', () => {
-            if(mainScroll.scrollTop > 50) {
-                topBar.classList.add('scrolled');
-            } else {
-                topBar.classList.remove('scrolled');
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    if(mainScroll.scrollTop > 50) {
+                        topBar.classList.add('scrolled');
+                    } else {
+                        topBar.classList.remove('scrolled');
+                    }
+                    ticking = false;
+                });
+                ticking = true;
             }
         });
 
-        // 7. Library Logic (Local Storage)
+        // 7. Library Placeholder
         function toggleLike() {
             const btn = document.getElementById('like-btn');
             btn.classList.toggle('active');
@@ -865,7 +939,6 @@
             } else {
                 btn.className = 'far fa-heart like-icon';
             }
-            // Note: Actual storage logic skipped for brevity in this single file demo
         }
         
         function loadLibrary() {
