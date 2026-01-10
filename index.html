@@ -2,10 +2,10 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <!-- PWA Settings -->
-    <meta name="theme-color" content="#1db954">
+    <meta name="theme-color" content="#121212">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="عراق ميوزك">
@@ -34,6 +34,8 @@
             --nav-width: 240px;
             --player-height: 90px;
             --header-height: 64px;
+            --mini-player-height: 56px;
+            --mobile-nav-height: 60px;
         }
 
         * {
@@ -125,22 +127,16 @@
             left: 15px;
             background: var(--primary);
             color: black;
-            padding: 8px 15px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-weight: bold;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             z-index: 1000;
             box-shadow: 0 4px 12px rgba(0,0,0,0.5);
             align-items: center;
             gap: 6px;
             cursor: pointer;
             border: none;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
         }
 
         .sidebar-divider {
@@ -171,7 +167,7 @@
             padding: 30px 20px;
             color: var(--text-subdued);
             font-size: 0.85rem;
-            padding-bottom: 80px; /* Space for Nav */
+            padding-bottom: 150px; /* Extra space for Nav + Player */
         }
 
         /* Main Content Area */
@@ -184,7 +180,6 @@
             border-radius: 8px 8px 0 0;
             margin-top: 8px;
             margin-left: 8px;
-            /* Performance: Create a new layer */
             will-change: transform;
         }
 
@@ -220,6 +215,11 @@
             font-family: inherit;
             font-weight: 500;
         }
+        .search-btn-icon {
+            cursor: pointer;
+            padding: 5px;
+            color: #333;
+        }
         .user-pill {
             background-color: rgba(0,0,0,0.7);
             padding: 4px 12px 4px 4px;
@@ -249,7 +249,7 @@
         }
         .hero-img {
             width: 180px; height: 180px;
-            box-shadow: 0 4px 30px rgba(0,0,0,0.5); /* Reduced shadow spread for performance */
+            box-shadow: 0 4px 30px rgba(0,0,0,0.5);
             object-fit: cover;
             border-radius: 8px;
         }
@@ -311,7 +311,6 @@
             display: flex;
             flex-direction: column;
         }
-        /* Removed hover background on touch devices to prevent sticky hover state */
         @media (hover: hover) {
             .card:hover { background-color: var(--bg-card-hover); }
         }
@@ -323,16 +322,15 @@
             margin-bottom: 12px;
             border-radius: 4px;
             overflow: hidden;
-            background: #333; /* Placeholder color */
+            background: #333;
         }
         .card-img {
             position: absolute; top: 0; left: 0;
             width: 100%; height: 100%; object-fit: cover;
-            opacity: 0; transition: opacity 0.5s ease; /* Fade in effect */
+            opacity: 0; transition: opacity 0.5s ease;
         }
         .card-img.loaded { opacity: 1; }
         
-        /* Green Play Button on Card */
         .play-btn-overlay {
             position: absolute;
             bottom: 8px;
@@ -372,7 +370,7 @@
             overflow: hidden;
         }
 
-        /* --- Player Bar --- */
+        /* --- Player Bar (Desktop Default) --- */
         .player-bar {
             height: var(--player-height);
             background-color: #181818;
@@ -384,166 +382,199 @@
             position: relative;
             z-index: 200;
         }
-
-        /* Now Playing (Left) */
-        .now-playing {
-            display: flex;
-            align-items: center;
-            width: 30%;
-            min-width: 180px;
-        }
+        .now-playing { display: flex; align-items: center; width: 30%; min-width: 180px; }
         .np-img { width: 56px; height: 56px; border-radius: 4px; margin-left: 14px; object-fit: cover; background: #333; }
         .np-info { display: flex; flex-direction: column; justify-content: center; margin-left: 14px; overflow: hidden; }
         .np-title { color: white; font-size: 0.9rem; font-weight: 600; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         .np-artist { color: var(--text-subdued); font-size: 0.75rem; cursor: pointer; }
         .like-icon { color: var(--text-subdued); margin-right: 16px; cursor: pointer; }
         .like-icon.active { color: var(--primary); }
-
-        /* Player Controls (Center) */
-        .player-controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 40%;
-            max-width: 722px;
-        }
-        .control-buttons {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 8px;
-        }
-        .c-btn {
-            background: none; border: none;
-            color: var(--text-subdued);
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        .player-controls { display: flex; flex-direction: column; align-items: center; width: 40%; max-width: 722px; }
+        .control-buttons { display: flex; align-items: center; gap: 20px; margin-bottom: 8px; }
+        .c-btn { background: none; border: none; color: var(--text-subdued); font-size: 1rem; cursor: pointer; transition: 0.2s; }
         .c-btn:hover { color: white; }
-        .c-btn.main-play {
-            width: 32px; height: 32px;
-            background: white;
-            color: black;
-            border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 1rem;
-        }
-        .c-btn.main-play:hover { transform: scale(1.05); }
-
-        .playback-bar {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.7rem;
-            color: var(--text-subdued);
-        }
-        .progress-container {
-            flex: 1;
-            height: 4px;
-            background-color: #4d4d4d;
-            border-radius: 2px;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background-color: white;
-            width: 0%;
-            border-radius: 2px;
-        }
-
-        /* Volume Controls (Right) */
-        .volume-controls {
-            width: 30%;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 10px;
-        }
+        .c-btn.main-play { width: 32px; height: 32px; background: white; color: black; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1rem; }
+        .playback-bar { width: 100%; display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--text-subdued); }
+        .progress-container { flex: 1; height: 4px; background-color: #4d4d4d; border-radius: 2px; cursor: pointer; position: relative; overflow: hidden; }
+        .progress-fill { height: 100%; background-color: white; width: 0%; border-radius: 2px; }
+        .volume-controls { width: 30%; display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
         .vol-bar { width: 100px; }
 
         /* Mobile Bottom Nav */
         .bottom-nav { display: none; }
+        
+        /* Greeting Header (Mobile Only) */
+        .mobile-greeting { display: none; font-size: 1.4rem; font-weight: 800; padding: 20px 24px 10px; margin-top: 20px; }
+        
+        /* Mobile Search UI */
+        .mobile-search-ui {
+            display: none;
+            padding: 20px 24px;
+            background: linear-gradient(180deg, #2a2a2a 0%, var(--bg-base) 100%);
+            min-height: 300px;
+        }
+        .mobile-search-ui.active { display: block; }
+        .mobile-search-input-wrapper {
+            background-color: white;
+            border-radius: 4px;
+            padding: 10px 14px;
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 20px;
+        }
+        .mobile-search-input { border: none; font-size: 1rem; font-weight: 500; width: 100%; outline: none; }
 
-        /* --- Responsive Design --- */
+        /* Offline Toast */
+        .offline-toast {
+            position: fixed;
+            top: 20px; left: 50%; transform: translateX(-50%);
+            background: #e91429;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        .offline-toast.visible { display: block; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { top: -50px; } to { top: 20px; } }
+
+        /* --- Responsive Design (Mobile Spotify Look) --- */
         @media (max-width: 768px) {
-            .sidebar { display: none; } /* Hide Sidebar */
-            
-            .content-area { 
-                margin: 0; 
-                border-radius: 0;
-                padding-bottom: 140px; 
-            }
-            
-            /* Enhanced Hero for Mobile */
-            .hero { 
-                height: auto; 
-                padding: 40px 20px 20px 20px; 
-                flex-direction: column; 
-                align-items: center; 
-                text-align: center; 
-                background: linear-gradient(135deg, #1f1f1f, #121212); /* Simpler gradient for performance */
-            }
-            .hero-img { width: 150px; height: 150px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
-            .hero-info h1 { font-size: 2.2rem; }
-            
-            .top-bar { display: none; } 
-
+            .sidebar { display: none; }
+            .top-bar { display: none; } /* Hide Desktop Header */
             .mobile-dev-info { display: block; }
+            .mobile-greeting { display: block; }
+            .mobile-install-fab { display: flex; }
 
-            .player-bar {
-                bottom: 55px; 
-                background: #181818;
-                border-radius: 6px;
-                margin: 0 8px;
-                width: calc(100% - 16px);
-                height: 60px;
-                position: fixed;
-                border: none;
-                box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+            .content-area {
+                margin: 0;
+                border-radius: 0;
+                padding-bottom: 140px;
+                /* Darker gradient start for mobile */
+                background: linear-gradient(180deg, #222 0%, #121212 40%);
             }
-            .np-img { width: 40px; height: 40px; border-radius: 4px; }
-            .volume-controls { display: none; }
-            .player-controls { width: auto; }
-            .playback-bar { position: absolute; bottom: 0; left: 0; width: 100%; gap: 0; }
-            .time-display { display: none; }
-            .progress-container { height: 2px; background: transparent; }
-            .progress-fill { background: var(--primary); }
-            
-            .control-buttons { margin: 0; gap: 15px; }
-            .c-btn.hide-mobile { display: none; }
-            .c-btn.main-play { width: 30px; height: 30px; font-size: 0.9rem; }
 
-            /* Performance: Remove blur on mobile nav */
+            /* Mobile Navigation - Fixed Bottom */
             .bottom-nav {
                 display: flex;
                 position: fixed;
                 bottom: 0; left: 0; right: 0;
-                height: 55px;
-                background: #121212; /* Solid color is faster than blur */
-                border-top: 1px solid #282828;
+                height: var(--mobile-nav-height);
+                background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(18,18,18,0.95) 100%);
                 justify-content: space-around;
                 align-items: center;
-                z-index: 190;
+                z-index: 200;
+                padding-bottom: env(safe-area-inset-bottom);
             }
             .nav-item {
                 display: flex; flex-direction: column; align-items: center;
-                color: var(--text-subdued); background: none; border: none;
-                font-size: 1.2rem;
-                gap: 4px;
+                color: #b3b3b3; background: none; border: none;
+                font-size: 1.4rem; gap: 4px;
+                flex: 1;
             }
-            .nav-item span { font-size: 0.6rem; font-weight: 500; }
+            .nav-item span { font-size: 0.65rem; font-weight: 400; }
             .nav-item.active { color: white; }
+            .nav-item.active i { font-weight: 900; } /* Filled icon simulation */
+
+            /* Mobile Floating Mini Player */
+            .player-bar {
+                position: fixed;
+                bottom: calc(var(--mobile-nav-height) + 8px + env(safe-area-inset-bottom)); /* Sit above nav */
+                left: 8px; right: 8px;
+                height: var(--mini-player-height);
+                background-color: #333333; /* Dark Grey Card */
+                border-radius: 6px;
+                border: none;
+                padding: 0 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                z-index: 195;
+                transition: transform 0.3s ease;
+            }
+            .now-playing { width: auto; flex: 1; }
+            .np-img { width: 40px; height: 40px; margin-left: 0; margin-right: 12px; border-radius: 4px; }
+            .np-info { margin-left: 0; }
+            .np-title { font-size: 0.85rem; font-weight: 700; }
+            .np-artist { font-size: 0.75rem; color: #b3b3b3; }
             
-            /* Show Floating Install Button on Mobile */
-            .mobile-install-fab { display: flex; }
+            /* Mini Player Controls */
+            .player-controls { 
+                width: auto; max-width: none; 
+                flex-direction: row; 
+                align-items: center;
+            }
+            .control-buttons { margin-bottom: 0; gap: 16px; margin-left: 8px; }
+            /* Hide non-essential buttons on mini player */
+            .c-btn { display: none; } 
+            .c-btn.main-play { 
+                display: flex; 
+                background: transparent; 
+                color: white; 
+                width: auto; height: auto; 
+                font-size: 1.5rem; 
+            }
+            .c-btn.like-mobile {
+                display: block;
+                color: var(--primary); /* Assuming liked for visual */
+                font-size: 1.2rem;
+            }
+            
+            /* Hide Time & Volume */
+            .time-display, .volume-controls, .playback-bar { display: none; }
+            
+            /* Mini Progress Bar at bottom of card */
+            .player-bar::after {
+                content: '';
+                position: absolute;
+                bottom: 1px; left: 8px; right: 8px;
+                height: 2px;
+                background: rgba(255,255,255,0.2);
+                border-radius: 2px;
+                pointer-events: none;
+            }
+            /* We will use the existing progress-fill but style it differently for mobile */
+            .player-bar .progress-container {
+                display: block !important;
+                position: absolute;
+                bottom: 1px; left: 8px; right: 8px;
+                height: 2px;
+                background: transparent;
+                width: auto;
+                pointer-events: none;
+            }
+            .player-bar .progress-fill { background-color: white; }
+
+            /* Grid Adjustments */
+            .cards-grid {
+                gap: 16px;
+                grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile mostly */
+            }
+            .card { background: transparent; padding: 0; }
+            .card:hover { background: transparent; }
+            .card-img-wrapper { border-radius: 4px; margin-bottom: 8px; }
+            .card-title { font-size: 0.9rem; margin-bottom: 2px; }
+            .play-btn-overlay { display: none; } /* No hover play btn on mobile */
+            
+            /* Tags */
+            .tag-pill {
+                background: #2a2a2a;
+                font-size: 0.8rem;
+                padding: 6px 16px;
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            .tag-pill.active { background: var(--primary); border-color: var(--primary); color: black; }
         }
     </style>
 </head>
 <body>
+
+    <!-- Offline Toast -->
+    <div id="offline-toast" class="offline-toast">
+        <i class="fas fa-wifi-slash"></i> لا يوجد اتصال - وضع العمل دون إنترنت
+    </div>
 
     <!-- Mobile Floating Install Button -->
     <button id="mobile-install-btn" class="mobile-install-fab">
@@ -558,16 +589,15 @@
                 <span>عراق ميوزك</span>
             </div>
             <ul class="nav-links">
-                <li class="nav-link active" onclick="loadCategory('Iraq Top Hits', 'الرئيسية')">
+                <li class="nav-link active" onclick="switchTab('home')">
                     <i class="fas fa-home"></i> الرئيسية
                 </li>
-                <li class="nav-link" onclick="focusSearch()">
+                <li class="nav-link" onclick="switchTab('search')">
                     <i class="fas fa-search"></i> بحث
                 </li>
                 <li class="nav-link" onclick="loadLibrary()">
                     <i class="fas fa-book"></i> مكتبتي
                 </li>
-                <!-- Install App Button (Desktop Sidebar) -->
                 <li id="desktop-install-btn" class="nav-link install-link">
                     <i class="fas fa-arrow-circle-down"></i> تثبيت التطبيق
                 </li>
@@ -578,10 +608,7 @@
                 <li class="nav-link" onclick="loadCategory('Majid Al Mohandis', 'ماجد المهندس')">ماجد المهندس</li>
                 <li class="nav-link" onclick="loadCategory('Saif Nabeel', 'سيف نبيل')">سيف نبيل</li>
                 <li class="nav-link" onclick="loadCategory('Rahma Riad', 'رحمة رياض')">رحمة رياض</li>
-                <li class="nav-link" onclick="loadCategory('Aseel Hameem', 'أصيل هميم')">أصيل هميم</li>
             </ul>
-            
-            <!-- Developer Info Desktop -->
             <div class="dev-info">
                 <div class="dev-name">المطور حسن داود</div>
                 <div class="dev-phone">07762360338</div>
@@ -591,11 +618,11 @@
         <!-- Main Content -->
         <main class="content-area" id="main-scroll">
             
-            <!-- Top Header -->
+            <!-- Desktop Top Header -->
             <header class="top-bar" id="top-bar">
                 <div class="search-box">
-                    <i class="fas fa-search" style="color:#121212; font-size:1.1rem; margin-left:8px;"></i>
-                    <input type="text" id="search-input" placeholder="ماذا تريد أن تسمع؟">
+                    <i class="fas fa-search search-btn-icon" onclick="performSearch(document.getElementById('desktop-search-input').value)"></i>
+                    <input type="text" id="desktop-search-input" placeholder="ماذا تريد أن تسمع؟">
                 </div>
                 <div class="user-pill">
                     <div class="user-avatar"><i class="fas fa-user"></i></div>
@@ -603,37 +630,54 @@
                 </div>
             </header>
 
-            <!-- Hero Section -->
-            <div class="hero">
-                <!-- Using a reliable high-quality Unsplash image for Music/Concert -->
-                <img src="https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=800&auto=format&fit=crop" class="hero-img" id="hero-img" alt="Hero" crossorigin="anonymous">
-                <div class="hero-info">
-                    <p>قائمة تشغيل</p>
-                    <h1 id="hero-title">أفضل أغاني العراق</h1>
-                    <p id="hero-desc">أجمل الأغاني العراقية المختارة لك بعناية. تحديث يومي.</p>
+            <!-- Mobile Greeting -->
+            <div class="mobile-greeting" id="greeting-msg">طاب مساؤك</div>
+
+            <!-- Mobile Search Interface (Hidden by default) -->
+            <div id="mobile-search-view" class="mobile-search-ui">
+                <div style="font-size:1.5rem; font-weight:700; margin-bottom:15px;">بحث</div>
+                <div class="mobile-search-input-wrapper">
+                    <i class="fas fa-search search-btn-icon" onclick="performSearch(document.getElementById('mobile-search-input').value)"></i>
+                    <input type="text" id="mobile-search-input" class="mobile-search-input" placeholder="ماذا تريد أن تسمع؟">
+                </div>
+                <div style="font-weight:700; margin-bottom:10px;">تصفح الكل</div>
+                <div class="cards-grid" style="grid-template-columns: repeat(2,1fr);">
+                    <div onclick="performSearch('عراقي')" style="background:#27856A; height:100px; border-radius:4px; padding:10px; font-weight:700; position:relative; overflow:hidden; cursor:pointer;">عراقي<img src="https://i.scdn.co/image/ab67706f000000025f828753235d94924c581a06" style="position:absolute; right:-10px; bottom:0; width:60px; transform:rotate(25deg);"></div>
+                    <div onclick="performSearch('بوب عربي')" style="background:#E91E63; height:100px; border-radius:4px; padding:10px; font-weight:700; position:relative; overflow:hidden; cursor:pointer;">بوب<img src="https://t.scdn.co/images/0a74d96e091a495bb09c0d83210910c3" style="position:absolute; right:-10px; bottom:0; width:60px; transform:rotate(25deg);"></div>
+                    <div onclick="performSearch('موال')" style="background:#1E3264; height:100px; border-radius:4px; padding:10px; font-weight:700; position:relative; overflow:hidden; cursor:pointer;">موال<img src="https://i.scdn.co/image/ab67706f00000002b88126c06a86e885d95e0926" style="position:absolute; right:-10px; bottom:0; width:60px; transform:rotate(25deg);"></div>
+                    <div onclick="performSearch('رومانسي')" style="background:#8D67AB; height:100px; border-radius:4px; padding:10px; font-weight:700; position:relative; overflow:hidden; cursor:pointer;">رومانسي<img src="https://i.scdn.co/image/ab67706f0000000213d2f9d8540c11438914b150" style="position:absolute; right:-10px; bottom:0; width:60px; transform:rotate(25deg);"></div>
                 </div>
             </div>
 
-            <!-- Tags -->
-            <div class="tags-container">
-                <button class="tag-pill active" onclick="loadCategory('Iraq Music', 'الكل')">الكل</button>
-                <button class="tag-pill" onclick="loadCategory('Arabic Pop', 'بوب عربي')">بوب عربي</button>
-                <button class="tag-pill" onclick="loadCategory('Iraqi Slow', 'عراقي بطيء')">عراقي بطيء</button>
-                <button class="tag-pill" onclick="loadCategory('Mawwal', 'موال')">موال</button>
-            </div>
+            <!-- Home Content -->
+            <div id="home-view">
+                <!-- Hero Section -->
+                <div class="hero">
+                    <img src="https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=800&auto=format&fit=crop" class="hero-img" id="hero-img" alt="Hero" crossorigin="anonymous">
+                    <div class="hero-info">
+                        <p style="font-size:0.75rem; font-weight:700; letter-spacing:1px; text-transform:uppercase;">قائمة تشغيل</p>
+                        <h1 id="hero-title">أفضل أغاني العراق</h1>
+                        <p id="hero-desc">أجمل الأغاني العراقية المختارة لك بعناية. تحديث يومي.</p>
+                    </div>
+                </div>
 
-            <!-- Music Grid -->
-            <div class="grid-section">
-                <div class="section-title" id="grid-title">تم إعداده لك</div>
-                <div class="cards-grid" id="cards-container">
-                    <!-- Cards will be injected here via JS -->
-                    <div style="grid-column:1/-1; text-align:center; padding:50px;">
-                        <i class="fas fa-circle-notch fa-spin fa-2x" style="color:var(--primary);"></i>
+                <!-- Tags -->
+                <div class="tags-container">
+                    <button class="tag-pill active" onclick="loadCategory('Iraq Music', 'الكل')">الكل</button>
+                    <button class="tag-pill" onclick="loadCategory('Arabic Pop', 'بوب عربي')">بوب عربي</button>
+                    <button class="tag-pill" onclick="loadCategory('Iraqi Slow', 'عراقي بطيء')">عراقي بطيء</button>
+                </div>
+
+                <!-- Music Grid -->
+                <div class="grid-section">
+                    <div class="section-title" id="grid-title">تم إعداده لك</div>
+                    <div class="cards-grid" id="cards-container">
+                        <!-- Content -->
                     </div>
                 </div>
             </div>
 
-            <!-- Mobile Developer Info (Footer) -->
+            <!-- Mobile Developer Info -->
             <div class="mobile-dev-info">
                 <div>المطور حسن داود</div>
                 <div style="direction:ltr; font-weight:bold; margin-top:5px; color:#1db954;">07762360338</div>
@@ -644,26 +688,25 @@
 
     <!-- Sticky Player Bar -->
     <footer class="player-bar">
-        <!-- Now Playing -->
         <div class="now-playing">
             <img src="https://via.placeholder.com/56" class="np-img" id="np-img" alt="Art">
             <div class="np-info">
                 <div class="np-title" id="np-title">اختر أغنية</div>
                 <div class="np-artist" id="np-artist">عراق ميوزك</div>
             </div>
-            <i class="far fa-heart like-icon" id="like-btn" onclick="toggleLike()"></i>
+            <!-- Like icon (Hidden on desktop via flex gap, shown on mobile logic) -->
+            <i class="far fa-heart like-icon c-btn like-mobile" style="display:none;" id="like-btn-mobile" onclick="toggleLike()"></i>
         </div>
 
-        <!-- Controls -->
         <div class="player-controls">
             <div class="control-buttons">
-                <button class="c-btn hide-mobile"><i class="fas fa-random"></i></button>
+                <button class="c-btn"><i class="fas fa-random"></i></button>
                 <button class="c-btn"><i class="fas fa-step-forward"></i></button>
                 <button class="c-btn main-play" id="play-pause-btn" onclick="togglePlay()">
                     <i class="fas fa-play" style="margin-right:-2px;"></i>
                 </button>
                 <button class="c-btn"><i class="fas fa-step-backward"></i></button>
-                <button class="c-btn hide-mobile"><i class="fas fa-redo"></i></button>
+                <button class="c-btn"><i class="fas fa-redo"></i></button>
             </div>
             <div class="playback-bar">
                 <span class="time-display" id="curr-time">0:00</span>
@@ -674,7 +717,6 @@
             </div>
         </div>
 
-        <!-- Volume -->
         <div class="volume-controls">
             <i class="fas fa-volume-up c-btn"></i>
             <div class="progress-container vol-bar">
@@ -687,15 +729,15 @@
 
     <!-- Mobile Bottom Nav -->
     <nav class="bottom-nav">
-        <button class="nav-item active" onclick="loadCategory('Iraq Top Hits', 'الرئيسية')">
+        <button class="nav-item active" id="nav-home" onclick="switchTab('home')">
             <i class="fas fa-home"></i>
             <span>الرئيسية</span>
         </button>
-        <button class="nav-item" onclick="focusSearch()">
+        <button class="nav-item" id="nav-search" onclick="switchTab('search')">
             <i class="fas fa-search"></i>
             <span>بحث</span>
         </button>
-        <button class="nav-item" onclick="loadLibrary()">
+        <button class="nav-item" id="nav-lib" onclick="loadLibrary()">
             <i class="fas fa-book"></i>
             <span>مكتبتي</span>
         </button>
@@ -708,25 +750,73 @@
         const progressFill = document.getElementById('progress-fill');
         const progressContainer = document.getElementById('progress-bar-container');
         const container = document.getElementById('cards-container');
-        const searchInput = document.getElementById('search-input');
         
-        // PWA Install Logic
+        // Tab elements
+        const homeView = document.getElementById('home-view');
+        const searchView = document.getElementById('mobile-search-view');
+        const heroSection = document.querySelector('.hero');
+        
+        // Search inputs
+        const desktopSearch = document.getElementById('desktop-search-input');
+        const mobileSearch = document.getElementById('mobile-search-input');
+        
+        // PWA Install
         let deferredPrompt;
         const desktopInstallBtn = document.getElementById('desktop-install-btn');
         const mobileInstallBtn = document.getElementById('mobile-install-btn');
-
-        // Initial check for mobile
         const isMobile = window.innerWidth <= 768;
 
+        // --- Current Song & Library Logic ---
+        let currentTrackData = null; // To store current playing song info
+        let library = JSON.parse(localStorage.getItem('my_library') || '[]');
+
+        // --- Greeting Logic ---
+        const hour = new Date().getHours();
+        const greetingEl = document.getElementById('greeting-msg');
+        if (hour < 12) greetingEl.innerText = "صباح الخير";
+        else if (hour < 18) greetingEl.innerText = "طاب مساؤك";
+        else greetingEl.innerText = "مساء الخير";
+
+        // --- Tab Switching Logic ---
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            if (tab === 'home') {
+                homeView.style.display = 'block';
+                searchView.classList.remove('active');
+                if(isMobile) document.getElementById('nav-home').classList.add('active');
+            } else if (tab === 'search') {
+                if(isMobile) {
+                    homeView.style.display = 'none';
+                    searchView.classList.add('active');
+                    document.getElementById('nav-search').classList.add('active');
+                    mobileSearch.focus();
+                } else {
+                    desktopSearch.focus();
+                }
+            }
+        }
+
+        // --- Search Logic with Fallback ---
+        function performSearch(term) {
+            if(term.trim() === '') return;
+            loadCategory(term, 'نتائج البحث عن: ' + term);
+            if(isMobile) {
+                switchTab('home');
+            }
+        }
+
+        desktopSearch.addEventListener('keypress', (e) => { if(e.key === 'Enter') performSearch(desktopSearch.value); });
+        mobileSearch.addEventListener('keypress', (e) => { if(e.key === 'Enter') performSearch(mobileSearch.value); });
+
+        // --- Install Logic ---
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            // Show buttons based on device
             desktopInstallBtn.style.display = 'flex';
             if(isMobile) mobileInstallBtn.style.display = 'flex';
         });
 
-        // Handler function
         function handleInstall() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
@@ -738,137 +828,131 @@
                     deferredPrompt = null;
                 });
             } else {
-                // If not supported/already installed/iOS
-                alert("لتثبيت التطبيق: اضغط على زر المشاركة (Share) في متصفحك، ثم اختر 'إضافة إلى الصفحة الرئيسية' (Add to Home Screen).");
+                alert("لتثبيت التطبيق: اضغط على زر المشاركة ثم اختر 'إضافة إلى الصفحة الرئيسية'.");
             }
         }
-
         desktopInstallBtn.addEventListener('click', handleInstall);
         mobileInstallBtn.addEventListener('click', handleInstall);
+        if(isMobile) setTimeout(() => { mobileInstallBtn.style.display = 'flex'; }, 2000);
+
+        // --- Network Logic & Caching ---
         
-        // Show mobile button anyway to allow manual instruction
-        if(isMobile) {
-            setTimeout(() => {
-                if(mobileInstallBtn.style.display !== 'flex') {
-                    mobileInstallBtn.style.display = 'flex';
-                }
-            }, 3000);
+        function showOfflineToast() {
+            const toast = document.getElementById('offline-toast');
+            toast.classList.add('visible');
+            setTimeout(() => toast.classList.remove('visible'), 3000);
         }
 
-        // UI Elements
-        const npTitle = document.getElementById('np-title');
-        const npArtist = document.getElementById('np-artist');
-        const npImg = document.getElementById('np-img');
-        const mainScroll = document.getElementById('main-scroll');
-        const topBar = document.getElementById('top-bar');
-
-        let isPlaying = false;
-        let currentTrackUrl = '';
-
-        // --- Functions ---
-
-        // 1. Fetch Music (Optimized limit)
         async function fetchTracks(term) {
-            container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px;"><i class="fas fa-circle-notch fa-spin fa-2x" style="color:var(--primary);"></i></div>';
+            container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px;"><i class="fas fa-circle-notch fa-spin fa-2x" style="color:#1db954;"></i></div>';
             
+            // Check Offline first
+            if (!navigator.onLine) {
+                showOfflineToast();
+                loadFromCache(term);
+                return;
+            }
+
             const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&media=music&entity=song&limit=80&country=IQ`;
 
             try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Network response was not ok');
-                const data = await response.json();
+                const res = await fetch(url);
+                if (!res.ok) throw new Error();
+                const data = await res.json();
                 
                 if(data.resultCount === 0) {
-                    container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#b3b3b3">لم يتم العثور على نتائج</div>';
+                    container.innerHTML = '<div style="padding:50px; text-align:center; color:#777">لا توجد نتائج</div>';
                     return;
                 }
-
-                renderCards(data.results);
-            } catch (error) {
-                console.warn("Direct fetch failed, trying proxy...", error);
                 
-                // Fallback using allorigins proxy to bypass potential CORS/Network restrictions
+                // Save to Cache
+                localStorage.setItem('cache_' + term, JSON.stringify(data.results));
+                renderCards(data.results);
+                
+            } catch (e) {
+                // Try Proxy
                 try {
-                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-                    const response = await fetch(proxyUrl);
-                    if (!response.ok) throw new Error('Proxy response was not ok');
-                    const data = await response.json();
-
-                    if(data.resultCount === 0) {
-                        container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#b3b3b3">لم يتم العثور على نتائج</div>';
-                        return;
-                    }
-                    renderCards(data.results);
-                } catch (proxyError) {
-                     console.error(proxyError);
-                     container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#b3b3b3">خطأ في الاتصال. تأكد من الإنترنت.</div>';
+                    const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                    const res2 = await fetch(proxy);
+                    if(!res2.ok) throw new Error();
+                    const data2 = await res2.json();
+                    
+                    localStorage.setItem('cache_' + term, JSON.stringify(data2.results));
+                    renderCards(data2.results);
+                } catch (err) {
+                    // Try loading from cache if network fails
+                    loadFromCache(term);
                 }
             }
         }
 
-        // 2. Render Cards (Optimized Image Loading)
+        function loadFromCache(term) {
+            const cached = localStorage.getItem('cache_' + term);
+            if (cached) {
+                console.log('Loaded from cache');
+                renderCards(JSON.parse(cached));
+            } else {
+                container.innerHTML = '<div style="padding:50px; text-align:center; color:#777">خطأ في الاتصال ولا توجد بيانات محفوظة.</div>';
+            }
+        }
+
         function renderCards(tracks) {
             container.innerHTML = '';
-            const fragment = document.createDocumentFragment();
-
+            const frag = document.createDocumentFragment();
             tracks.forEach(track => {
-                // Get high-res image
-                const imgUrl = track.artworkUrl100.replace('100x100', '300x300'); // slightly smaller than 400 for speed
-                const safeTitle = track.trackName.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-                const safeArtist = track.artistName.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-                const safePreview = track.previewUrl;
+                // Ensure we have valid data
+                if(!track.previewUrl) return;
 
+                const img = track.artworkUrl100 ? track.artworkUrl100.replace('100x100', '300x300') : 'https://via.placeholder.com/300';
+                const safeTitle = (track.trackName || 'Unknown').replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                const safeArtist = (track.artistName || 'Unknown').replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.innerHTML = `
                     <div class="card-img-wrapper">
-                        <img src="${imgUrl}" class="card-img" alt="${safeTitle}" loading="lazy" onload="this.classList.add('loaded')">
-                        <div class="play-btn-overlay">
-                            <i class="fas fa-play" style="margin-right:-2px;"></i>
-                        </div>
+                        <img src="${img}" class="card-img" loading="lazy" onload="this.classList.add('loaded')">
+                        <div class="play-btn-overlay"><i class="fas fa-play"></i></div>
                     </div>
                     <div class="card-title">${safeTitle}</div>
                     <div class="card-desc">${safeArtist}</div>
                 `;
                 
-                card.onclick = () => playTrack(safePreview, safeTitle, safeArtist, imgUrl);
-                fragment.appendChild(card);
+                // Pass full object for library saving
+                const trackData = {
+                    title: safeTitle,
+                    artist: safeArtist,
+                    img: img,
+                    url: track.previewUrl
+                };
+                
+                card.onclick = () => playTrack(trackData);
+                frag.appendChild(card);
             });
-            container.appendChild(fragment);
+            container.appendChild(frag);
         }
 
-        // 3. Play Logic
-        function playTrack(url, title, artist, img) {
-            if(!url) return alert('معاينة غير متاحة لهذه الأغنية');
-            
-            currentTrackUrl = url;
-            audio.src = url;
-            
-            // Try playing and catch errors
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    isPlaying = true;
-                    updatePlayBtn();
-                }).catch(error => {
-                    // Auto-play was prevented or interrupted
-                    console.warn("Playback interrupted or prevented:", error);
-                    isPlaying = false;
-                    updatePlayBtn();
-                });
-            }
+        // --- Audio & Library Logic ---
+        let isPlaying = false;
 
-            // Update UI
-            npTitle.innerText = title;
-            npArtist.innerText = artist;
-            npImg.src = img;
+        function playTrack(trackData) {
+            if(!trackData.url) return alert('المعاينة غير متاحة');
             
-            // Setup Media Session
+            currentTrackData = trackData; // Save current song info
+            
+            // Check library status
+            updateLikeButtonState();
+
+            audio.src = trackData.url;
+            audio.play().then(() => { isPlaying = true; updatePlayBtn(); }).catch(e => console.log(e));
+            
+            document.getElementById('np-title').innerText = trackData.title;
+            document.getElementById('np-artist').innerText = trackData.artist;
+            document.getElementById('np-img').src = trackData.img;
+            
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
-                    title: title,
-                    artist: artist,
-                    artwork: [{ src: img, sizes: '512x512', type: 'image/jpeg' }]
+                    title: trackData.title, artist: trackData.artist, artwork: [{ src: trackData.img, sizes: '512x512', type: 'image/jpeg' }]
                 });
                 navigator.mediaSession.setActionHandler('play', togglePlay);
                 navigator.mediaSession.setActionHandler('pause', togglePlay);
@@ -876,118 +960,132 @@
         }
 
         function togglePlay() {
-            if(!currentTrackUrl) return;
-            
             if(audio.paused) {
-                const playPromise = audio.play();
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        isPlaying = true;
-                        updatePlayBtn();
-                    }).catch(error => {
-                        console.warn("Playback interrupted:", error);
-                        isPlaying = false;
-                        updatePlayBtn();
-                    });
-                }
+                audio.play().then(() => { isPlaying = true; updatePlayBtn(); });
             } else {
-                audio.pause();
-                isPlaying = false;
-                updatePlayBtn();
+                audio.pause(); isPlaying = false; updatePlayBtn();
             }
         }
 
         function updatePlayBtn() {
-            if(isPlaying) {
-                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            } else {
-                playBtn.innerHTML = '<i class="fas fa-play" style="margin-right:-2px;"></i>';
-            }
+            const icon = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play" style="margin-right:-2px;"></i>';
+            playBtn.innerHTML = icon;
         }
 
-        // 4. Progress Bar
         audio.addEventListener('timeupdate', () => {
-            const percent = (audio.currentTime / audio.duration) * 100;
-            progressFill.style.width = percent + '%';
-            
-            const curMins = Math.floor(audio.currentTime / 60);
-            const curSecs = Math.floor(audio.currentTime % 60);
-            document.getElementById('curr-time').innerText = `${curMins}:${curSecs < 10 ? '0' : ''}${curSecs}`;
+            const pct = (audio.currentTime / audio.duration) * 100;
+            progressFill.style.width = pct + '%';
+            document.querySelectorAll('.progress-fill').forEach(el => el.style.width = pct + '%');
+            const curM = Math.floor(audio.currentTime / 60);
+            const curS = Math.floor(audio.currentTime % 60);
+            document.getElementById('curr-time').innerText = `${curM}:${curS<10?'0':''}${curS}`;
         });
+        
+        audio.addEventListener('ended', () => { isPlaying = false; updatePlayBtn(); });
 
-        progressContainer.addEventListener('click', (e) => {
-            const width = progressContainer.clientWidth;
-            const clickX = e.offsetX;
-            const duration = audio.duration;
-            audio.currentTime = (clickX / width) * duration;
-        });
-
-        audio.addEventListener('ended', () => {
-            isPlaying = false;
-            updatePlayBtn();
-        });
-
-        // 5. Navigation & Search
+        // --- Categories ---
         function loadCategory(term, title) {
-            document.getElementById('grid-title').innerText = title || term;
-            document.getElementById('hero-title').innerText = title || term;
-            
-            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tag-pill').forEach(el => el.classList.remove('active'));
-            
+            if(title) {
+                document.getElementById('grid-title').innerText = title;
+                document.getElementById('hero-title').innerText = title;
+            } else {
+                document.getElementById('grid-title').innerText = term;
+                document.getElementById('hero-title').innerText = term;
+            }
             fetchTracks(term);
         }
 
-        function focusSearch() {
-            searchInput.focus();
-            if(window.innerWidth <= 768) {
-                mainScroll.scrollTop = 0;
-            }
-        }
-
-        searchInput.addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') {
-                loadCategory(searchInput.value, 'نتائج البحث عن: ' + searchInput.value);
-            }
-        });
-
-        // 6. Scroll Effect (Optimized)
-        let ticking = false;
-        mainScroll.addEventListener('scroll', () => {
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    if(mainScroll.scrollTop > 50) {
-                        topBar.classList.add('scrolled');
-                    } else {
-                        topBar.classList.remove('scrolled');
-                    }
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        });
-
-        // 7. Library Placeholder
+        // --- Library System ---
         function toggleLike() {
-            const btn = document.getElementById('like-btn');
-            btn.classList.toggle('active');
-            if(btn.classList.contains('active')) {
-                btn.className = 'fas fa-heart like-icon active';
+            if (!currentTrackData) return;
+
+            const index = library.findIndex(t => t.url === currentTrackData.url);
+            
+            if (index > -1) {
+                // Remove
+                library.splice(index, 1);
             } else {
-                btn.className = 'far fa-heart like-icon';
+                // Add
+                library.push(currentTrackData);
+            }
+            
+            localStorage.setItem('my_library', JSON.stringify(library));
+            updateLikeButtonState();
+            
+            // If we are currently viewing the library, reload it
+            if(document.getElementById('grid-title').innerText === 'مكتبتي') {
+                loadLibrary();
             }
         }
-        
+
+        function updateLikeButtonState() {
+            if (!currentTrackData) return;
+            const isLiked = library.some(t => t.url === currentTrackData.url);
+            const btns = document.querySelectorAll('.like-icon');
+            
+            btns.forEach(btn => {
+                if (isLiked) {
+                    btn.classList.add('active');
+                    btn.className = 'fas fa-heart like-icon active c-btn like-mobile';
+                } else {
+                    btn.classList.remove('active');
+                    btn.className = 'far fa-heart like-icon c-btn like-mobile';
+                }
+                // Ensure display is correct on mobile vs desktop
+                if(isMobile) {
+                    document.getElementById('like-btn-mobile').style.display = 'block';
+                }
+            });
+        }
+
         function loadLibrary() {
             document.getElementById('grid-title').innerText = 'مكتبتي';
-            container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#b3b3b3">الميزة قادمة قريباً</div>';
+            document.getElementById('hero-title').innerText = 'مكتبتي';
+            
+            if (isMobile) {
+                homeView.style.display = 'block';
+                searchView.classList.remove('active');
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                document.getElementById('nav-lib').classList.add('active');
+            }
+
+            if (library.length === 0) {
+                container.innerHTML = '<div style="padding:50px; text-align:center; color:#777">لم تقم بحفظ أي أغانٍ بعد.<br>اضغط على القلب لحفظ الأغاني.</div>';
+                return;
+            }
+
+            // Render library items using the same card renderer, 
+            // but we need to map them to the structure renderCards expects if needed, 
+            // OR reuse render logic. 
+            // Since we stored cleaned data, we can just render manually or adapt.
+            container.innerHTML = '';
+            const frag = document.createDocumentFragment();
+            
+            library.forEach(track => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-img-wrapper">
+                        <img src="${track.img}" class="card-img" loading="lazy" onload="this.classList.add('loaded')">
+                        <div class="play-btn-overlay"><i class="fas fa-play"></i></div>
+                    </div>
+                    <div class="card-title">${track.title}</div>
+                    <div class="card-desc">${track.artist}</div>
+                `;
+                card.onclick = () => playTrack(track);
+                frag.appendChild(card);
+            });
+            container.appendChild(frag);
         }
 
-        // --- Init ---
+        // Init
         window.addEventListener('DOMContentLoaded', () => {
             loadCategory('Iraq Top Hits', 'أفضل الأغاني العراقية');
+            
+            // Check connection status listener
+            window.addEventListener('online', () => document.getElementById('offline-toast').classList.remove('visible'));
+            window.addEventListener('offline', showOfflineToast);
         });
-
     </script>
 </body>
 </html>
