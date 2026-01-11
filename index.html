@@ -162,8 +162,10 @@
             position: relative; width: 100%; padding-top: 100%;
             border-radius: 15px; overflow: hidden; margin-bottom: 10px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            background: #222;
         }
-        .img-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .img-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: 0.5s; opacity: 0; }
+        .img-box img.loaded { opacity: 1; }
         .music-card:hover img { transform: scale(1.1); }
         
         .card-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -181,7 +183,7 @@
         }
 
         .track-info { display: flex; align-items: center; gap: 15px; width: 30%; }
-        .track-img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .track-img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.5); background: #222; }
         .track-name { font-weight: 800; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .track-artist { font-size: 0.8rem; color: var(--text-sub); }
 
@@ -199,13 +201,10 @@
         .progress-bar-wrapper { width: 100%; display: flex; align-items: center; gap: 10px; font-size: 0.7rem; color: var(--text-sub); }
         .progress-bar-container { flex: 1; height: 5px; background: rgba(255,255,255,0.1); border-radius: 10px; cursor: pointer; position: relative; }
         .progress-fill { height: 100%; width: 0%; background: linear-gradient(to left, var(--primary), var(--secondary)); border-radius: 10px; position: relative; }
-        .progress-fill::after { content: ''; position: absolute; right: -5px; top: -4px; width: 13px; height: 13px; background: white; border-radius: 50%; box-shadow: 0 0 10px rgba(0,0,0,0.5); display: none; }
-        .progress-bar-container:hover .progress-fill::after { display: block; }
 
         .player-right { display: flex; align-items: center; gap: 20px; width: 30%; justify-content: flex-end; }
         .dl-btn { font-size: 1.4rem; color: white; cursor: pointer; }
 
-        /* Hidden YT Player */
         #yt-player-hidden { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
         /* Mobile Bottom Nav */
@@ -269,7 +268,7 @@
             </ul>
         </aside>
 
-        <main class="content-area">
+        <main class="content-area" id="main-content-scroll">
             <!-- Header -->
             <header class="top-bar">
                 <div class="search-container">
@@ -288,7 +287,7 @@
                     <span onclick="runFullSearch('عراقي حصري 2024')">مشاهدة الكل</span>
                 </div>
                 <div class="horizontal-list" id="list-iraq">
-                    <!-- Cards -->
+                    <div style="padding: 20px; color: #777;"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
                 </div>
 
                 <div class="section-header">
@@ -296,7 +295,7 @@
                     <span onclick="runFullSearch('Arabic New 2024')">مشاهدة الكل</span>
                 </div>
                 <div class="horizontal-list" id="list-new">
-                    <!-- Cards -->
+                    <div style="padding: 20px; color: #777;"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
                 </div>
 
                 <div class="section-header">
@@ -304,7 +303,7 @@
                     <span>استمع</span>
                 </div>
                 <div class="horizontal-list" id="list-radio">
-                    <!-- Cards -->
+                    <div style="padding: 20px; color: #777;"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
                 </div>
             </div>
 
@@ -393,25 +392,27 @@
         let library = JSON.parse(localStorage.getItem('anghami_v2_lib') || '[]');
         let isPlaying = false;
 
-        // --- View Controller ---
+        // --- Improved View Controller ---
         function showView(view) {
-            document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.view-content').forEach(v => v.style.display = 'none');
             document.querySelectorAll('.nav-link, .m-nav-item').forEach(l => l.classList.remove('active'));
             
-            document.getElementById('view-' + view).classList.add('active');
+            const viewEl = document.getElementById('view-' + view);
+            if(viewEl) viewEl.style.display = 'block';
             
-            // Highlight links
             if(window.innerWidth > 768) {
                 const lnks = document.querySelectorAll('.nav-link');
                 if(view === 'discover') lnks[0].classList.add('active');
                 if(view === 'search') lnks[1].classList.add('active');
                 if(view === 'library') lnks[2].classList.add('active');
             } else {
-                document.getElementById('m-' + view).classList.add('active');
+                const mobNav = document.getElementById('m-' + view);
+                if(mobNav) mobNav.classList.add('active');
                 const titles = { discover: 'اكتشف', search: 'بحث', library: 'المكتبة' };
-                document.getElementById('mob-title').innerText = titles[view];
+                document.getElementById('mob-title').innerText = titles[view] || 'أنغامي';
             }
             if(view === 'library') buildLibrary();
+            document.getElementById('main-content-scroll').scrollTop = 0;
         }
 
         // --- YouTube Engine ---
@@ -439,34 +440,32 @@
                 isPlaying = false;
                 updateMasterBtn(false);
             }
-            if (event.data == YT.PlayerState.ENDED) {
-                isPlaying = false;
-                updateMasterBtn(false);
-            }
         }
 
-        // --- Playback Logic (Full Songs) ---
+        // --- Robust Playback Logic ---
         async function playFullTrack(track) {
             currentTrack = track;
-            
-            // Update UI immediately
             document.getElementById('p-name').innerText = track.title;
             document.getElementById('p-artist').innerText = track.artist;
             document.getElementById('p-img').src = track.img;
             updateLikeIcon();
 
-            // Search YouTube for "Full Song"
-            const query = `${track.title} ${track.artist} official audio`;
+            const query = `${track.title} ${track.artist} official audio full song`;
             const ytId = await findYouTubeId(query);
             
             if(ytId && ytPlayer && ytPlayer.loadVideoById) {
                 ytPlayer.loadVideoById(ytId);
                 ytPlayer.playVideo();
             } else {
-                alert("تعذر العثور على الأغنية الكاملة. جاري محاولة مصدر بديل...");
+                console.log("YouTube ID fallback trigger...");
+                // Just in case, try searching without "full song"
+                const ytIdBackup = await findYouTubeId(`${track.title} ${track.artist}`);
+                if(ytIdBackup) {
+                    ytPlayer.loadVideoById(ytIdBackup);
+                    ytPlayer.playVideo();
+                }
             }
 
-            // Media Session (Notification Controls)
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: track.title, artist: track.artist, artwork: [{ src: track.img, sizes: '512x512', type: 'image/jpeg' }]
@@ -475,10 +474,12 @@
         }
 
         async function findYouTubeId(query) {
-            // Using a public search proxy to get YT results without API key
-            const url = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://www.youtube.com/results?search_query=' + query)}`;
+            const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=1&country=IQ`;
+            // Note: We are using a search trick or proxy to get YT info. 
+            // Since we can't have a backend, we use a public proxy to fetch YT search results safely.
+            const searchUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://www.youtube.com/results?search_query=' + query)}`;
             try {
-                const res = await fetch(url);
+                const res = await fetch(searchUrl);
                 const html = await res.text();
                 const match = html.match(/"videoId":"([^"]+)"/);
                 return match ? match[1] : null;
@@ -507,31 +508,45 @@
         }
 
         document.getElementById('prog-container').onclick = (e) => {
-            if(!ytPlayer) return;
+            if(!ytPlayer || !ytPlayer.getDuration) return;
             const pct = e.offsetX / e.target.clientWidth;
             ytPlayer.seekTo(pct * ytPlayer.getDuration());
         };
 
-        // --- Data Fetching ---
+        // --- Data Fetching with Mobile Fixes ---
         async function fetchMusic(term, limit = 10) {
             const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&media=music&entity=song&limit=${limit}&country=IQ`;
             try {
-                const res = await fetch(url);
-                const data = await res.json();
-                return data.results.map(t => ({
-                    title: t.trackName,
-                    artist: t.artistName,
-                    img: t.artworkUrl100.replace('100x100', '500x500'),
-                    id: t.trackId
-                }));
-            } catch (e) { return []; }
+                // Try direct first
+                let res = await fetch(url);
+                if(!res.ok) throw new Error();
+                let data = await res.json();
+                return mapMusicData(data.results);
+            } catch (e) {
+                // Try Proxy fallback for mobile networks
+                try {
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                    const res = await fetch(proxyUrl);
+                    const data = await res.json();
+                    return mapMusicData(data.results);
+                } catch (err) { return []; }
+            }
+        }
+
+        function mapMusicData(results) {
+            return results.map(t => ({
+                title: t.trackName,
+                artist: t.artistName,
+                img: t.artworkUrl100.replace('100x100', '500x500'),
+                id: t.trackId
+            }));
         }
 
         function createCard(track) {
             const div = document.createElement('div');
             div.className = 'music-card';
             div.innerHTML = `
-                <div class="img-box"><img src="${track.img}" loading="lazy"></div>
+                <div class="img-box"><img src="${track.img}" loading="lazy" onload="this.classList.add('loaded')"></div>
                 <div class="card-title">${track.title}</div>
                 <div class="card-subtitle">${track.artist}</div>
             `;
@@ -540,22 +555,26 @@
         }
 
         async function runFullSearch(term) {
+            if(!term) return;
             showView('search');
-            document.getElementById('results-area').style.display = 'block';
-            document.getElementById('categories-area').style.display = 'none';
+            const resultsArea = document.getElementById('results-area');
+            const categoriesArea = document.getElementById('categories-area');
             const grid = document.getElementById('search-grid');
-            grid.innerHTML = '<div style="width:100%; text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> جاري جلب الأغاني الكاملة...</div>';
             
-            const results = await fetchMusic(term, 20);
+            resultsArea.style.display = 'block';
+            categoriesArea.style.display = 'none';
+            grid.innerHTML = '<div style="width:100%; text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> جاري البحث...</div>';
+            
+            const results = await fetchMusic(term, 24);
             grid.innerHTML = '';
+            if(results.length === 0) grid.innerHTML = '<div style="width:100%; text-align:center; padding:20px;">لا توجد نتائج.</div>';
             results.forEach(t => grid.appendChild(createCard(t)));
         }
 
-        // Listeners
         document.getElementById('pc-search-in').onkeypress = (e) => { if(e.key === 'Enter') runFullSearch(e.target.value); };
         document.getElementById('mob-search-in').onkeypress = (e) => { if(e.key === 'Enter') runFullSearch(e.target.value); };
 
-        // --- Library & Utils ---
+        // --- Library ---
         function toggleLike() {
             if(!currentTrack) return;
             const idx = library.findIndex(s => s.title === currentTrack.title);
@@ -575,45 +594,46 @@
         function buildLibrary() {
             const grid = document.getElementById('lib-grid');
             grid.innerHTML = '';
-            if(library.length === 0) { grid.innerHTML = '<p style="color:#777; width:100%; text-align:center;">المكتبة فارغة. أضف بعض الأغاني!</p>'; return; }
+            if(library.length === 0) { grid.innerHTML = '<p style="color:#777; width:100%; text-align:center; padding: 20px;">المكتبة فارغة.</p>'; return; }
             library.forEach(t => grid.appendChild(createCard(t)));
         }
 
         function formatTime(seconds) {
+            if(isNaN(seconds)) return "0:00";
             const m = Math.floor(seconds / 60);
             const s = Math.floor(seconds % 60);
             return `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
-        async function downloadCurrent() {
+        function downloadCurrent() {
             if(!currentTrack) return;
-            const btn = document.getElementById('dl-icon');
-            btn.className = 'fas fa-spinner fa-spin dl-btn';
-            // Download logic simulation
-            setTimeout(() => {
-                alert(`تم حفظ الأغنية الكاملة: ${currentTrack.title} في التنزيلات`);
-                btn.className = 'fas fa-check-circle dl-btn';
-                btn.style.color = 'var(--primary)';
-            }, 2000);
-            setTimeout(() => { btn.className = 'fas fa-arrow-circle-down dl-btn'; btn.style.color = 'white'; }, 5000);
+            alert(`تم إضافة "${currentTrack.title}" إلى قائمة التحميل (محاكاة)`);
         }
 
-        // Initial Load
-        async function init() {
-            const raq = await fetchMusic('سيف نبيل محمود التركي رحمة رياض', 8);
-            const listI = document.getElementById('list-iraq');
-            listI.innerHTML = ''; raq.forEach(t => listI.appendChild(createCard(t)));
+        // --- Robust Init ---
+        async function initApp() {
+            // Load sections one by one for better stability
+            try {
+                const raq = await fetchMusic('سيف نبيل محمود التركي رحمة رياض', 8);
+                const listI = document.getElementById('list-iraq');
+                if(listI) { listI.innerHTML = ''; raq.forEach(t => listI.appendChild(createCard(t))); }
 
-            const newM = await fetchMusic('2024 Arabic', 8);
-            const listN = document.getElementById('list-new');
-            listN.innerHTML = ''; newM.forEach(t => listN.appendChild(createCard(t)));
+                const newM = await fetchMusic('Arabic Hits 2024', 8);
+                const listN = document.getElementById('list-new');
+                if(listN) { listN.innerHTML = ''; newM.forEach(t => listN.appendChild(createCard(t))); }
 
-            const radio = await fetchMusic('كاظم الساهر ماجد المهندس', 8);
-            const listR = document.getElementById('list-radio');
-            listR.innerHTML = ''; radio.forEach(t => listR.appendChild(createCard(t)));
+                const radio = await fetchMusic('كاظم الساهر ماجد المهندس شيرين', 8);
+                const listR = document.getElementById('list-radio');
+                if(listR) { listR.innerHTML = ''; radio.forEach(t => listR.appendChild(createCard(t))); }
+            } catch (e) {
+                console.error("Init Error:", e);
+            }
         }
 
-        window.onload = init;
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+            showView('discover'); // Ensure discover is shown first
+        });
     </script>
 </body>
 </html>
